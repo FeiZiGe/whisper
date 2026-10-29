@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F7F3EB">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>纸间密语</title>
+<style>
+:root {
+  --bg: #F7F3EB;
+  --bg-soft: #FCFAF5;
+  --card: #FFFDF8;
+  --text: #2F2925;
+  --text-light: #7A7066;
+  --border: #DDD2C4;
+  --primary: #B98A45;
+  --primary-hover: #A87936;
+  --sakura: #E8C4C4;
+  --font-title: "Noto Serif JP", "Songti SC", "SimSun", "Yu Mincho", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius-card: 22px;
+  --radius-input: 14px;
+  --shadow-card: 0 4px 20px rgba(95,73,34,0.06);
+  --shadow-card-hover: 0 6px 26px rgba(95,73,34,0.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+body::before {
+  content:"";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(185,138,69,0.025) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(185,138,69,0.02) 0%, transparent 40%),
+    repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(95,73,34,0.012) 3px, rgba(95,73,34,0.012) 4px);
+}
+.pattern-corner {
+  position: fixed; bottom: -20px; right: -20px;
+  width: 220px; height: 220px;
+  opacity: 0.04; pointer-events: none; z-index: 0;
+}
+.fuji-wrap {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  pointer-events: none; z-index: 0;
+  opacity: 0;
+  animation: fujiFadeIn 1.2s ease-in-out 0s forwards;
+}
+.fuji-wrap svg { display:block; width:100%; height:auto; max-height:260px; }
+@keyframes fujiFadeIn { from{opacity:0} to{opacity:1} }
+#leaves-layer { position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+.leaf {
+  position:absolute; top:-30px;
+  will-change: transform, opacity;
+  animation-name: leafFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
+}
+@keyframes leafFall {
+  0%   { transform: translate3d(0,-30px,0) rotate(0deg); opacity:0; }
+  8%   { opacity:0.75; }
+  85%  { opacity:0.6; }
+  100% { transform: translate3d(var(--drift),105vh,0) rotate(var(--spin)); opacity:0; }
+}
+.page {
+  position: relative; z-index: 2;
+  max-width: 700px; margin: 0 auto;
+  padding: 48px 24px 140px;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+.fade-seq { opacity: 0; animation: fadeUp 0.9s ease-out forwards; }
+.seq-1 { animation-delay: 1.5s; }
+.seq-2 { animation-delay: 1.9s; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.brand {
+  font-family: var(--font-title);
+  font-size: clamp(30px,6vw,40px);
+  font-weight: 600; line-height: 1.4;
+  letter-spacing: 0.12em; color: var(--text);
+  text-align: center; margin-bottom: 6px;
+}
+.brand-sub {
+  font-family: var(--font-title);
+  font-size: 13px; color: var(--text-light);
+  text-align: center; letter-spacing: 0.3em;
+  margin-bottom: 56px;
+}
+.brand-sub::before, .brand-sub::after { content:"—"; margin:0 10px; color:var(--border); }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 40px 36px;
+  transition: box-shadow 400ms ease-out;
+}
+.card:hover { box-shadow: var(--shadow-card-hover); }
+.login-title {
+  font-family: var(--font-title);
+  font-size: 20px; letter-spacing: 0.15em;
+  margin-bottom: 28px; text-align: center; color: var(--text);
+}
+.field { margin-bottom: 22px; }
+.field-label {
+  display: block; font-size: 13px; color: var(--text-light);
+  margin-bottom: 8px; letter-spacing: 0.06em;
+}
+.input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: var(--font-body);
+  color: var(--text);
+  outline: none;
+  transition: border-color 300ms ease;
+  -webkit-appearance: none; appearance: none;
+}
+.input:focus { border-color: var(--primary); }
+.input::placeholder { color: #B9AE9F; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-body);
+  font-size: 15px; letter-spacing: 0.08em;
+  cursor: pointer; border: none;
+  border-radius: 999px;
+  padding: 14px 28px; min-height: 44px;
+  transition: transform 400ms ease-out, box-shadow 400ms ease-out, background-color 400ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary {
+  background: var(--primary); color: #FFFDF8;
+  box-shadow: 0 2px 10px rgba(185,138,69,0.25);
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(185,138,69,0.32);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-block { width: 100%; }
+.mini-actions {
+  display: flex; gap: 8px; margin-top: 8px;
+}
+.mini-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-light);
+  font-size: 12px; letter-spacing: 0.06em;
+  padding: 6px 14px; min-height: 32px;
+  cursor: pointer;
+  transition: all 300ms ease;
+  font-family: var(--font-body);
+}
+.mini-btn:hover { border-color: var(--primary); color: var(--primary); }
+.error-msg {
+  font-size: 13px; color: #A85B3F;
+  margin-top: 12px; min-height: 20px;
+  letter-spacing: 0.04em;
+}
+.mode-tabs { display: flex; gap: 12px; margin-bottom: 28px; }
+.mode-tab {
+  flex: 1;
+  font-family: var(--font-title);
+  font-size: 17px; letter-spacing: 0.2em;
+  padding: 14px 0; min-height: 52px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 400ms ease-out;
+}
+.mode-tab.active { background: var(--primary); border-color: var(--primary); color: #FFFDF8; }
+.mode-tab:not(.active):hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+.mode-panel { transition: opacity 300ms ease; }
+.mode-panel.fading { opacity: 0; }
+.seed-input {
+  font-family: var(--font-mono);
+  font-size: 28px; letter-spacing: 0.5em;
+  text-align: center;
+  padding: 14px 16px 14px 24px;
+  caret-color: var(--primary);
+}
+textarea.input { resize: vertical; min-height: 120px; line-height: 1.8; font-size: 16px; }
+textarea.mono {
+  font-family: var(--font-mono);
+  font-size: 17px; letter-spacing: 0.06em;
+  min-height: 140px; word-break: break-all;
+}
+.result-area { margin-top: 28px; display: none; }
+.result-area.visible { display: block; }
+.seed-hint { font-size: 13px; color: var(--text-light); margin-bottom: 10px; letter-spacing: 0.05em; }
+.result-box {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 17px; letter-spacing: 0.06em;
+  word-break: break-all;
+  white-space: pre-wrap;
+  color: var(--text);
+  line-height: 2;
+}
+.result-actions { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+.footer-note {
+  margin-top: 80px; text-align: center;
+  font-size: 12.5px; color: var(--text-light);
+  letter-spacing: 0.08em; line-height: 2.2;
+}
+.footer-note .rule { width: 40px; height: 1px; background: var(--border); margin: 0 auto 18px; }
+.logout-link {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-light); font-size: 12.5px;
+  text-decoration: underline; text-underline-offset: 3px;
+  font-family: var(--font-body); letter-spacing: 0.08em;
+  margin-top: 6px;
+}
+.logout-link:hover { color: var(--primary); }
+.hidden { display: none !important; }
+@media (max-width: 640px) {
+  .page { padding: 36px 20px 120px; }
+  .card { padding: 32px 24px; border-radius: 16px; }
+  .brand-sub { margin-bottom: 40px; }
+  .seed-input { font-size: 24px; }
+  .mode-tab { font-size: 15px; letter-spacing: 0.12em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fuji-wrap, .fade-seq { animation: none !important; opacity: 1 !important; }
+  .leaf { display: none !important; }
+  .btn, .mode-tab, .input, .card, .mode-panel { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="fuji-wrap" aria-hidden="true">
+  <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice">
+    <path d="M0 260 L0 210 Q120 175 240 205 Q330 225 420 200 Q520 172 620 205 Q720 235 800 205 L800 260 Z" fill="#8A94A6" opacity="0.10"/>
+    <path d="M110 260 L400 78 L690 260 Z" fill="#5B6472" opacity="0.12"/>
+    <path d="M400 78 L352 110 L368 118 L384 108 L400 122 L416 108 L432 118 L448 110 Z" fill="#FCFAF5" opacity="0.55"/>
+    <path d="M0 260 L0 235 Q150 215 300 238 Q450 258 600 236 Q720 220 800 240 L800 260 Z" fill="#5B6472" opacity="0.07"/>
+  </svg>
+</div>
+
+<svg class="pattern-corner" viewBox="0 0 200 200" aria-hidden="true">
+  <defs>
+    <pattern id="seigaiha" width="24" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="12" r="6" fill="none" stroke="#2F2925" stroke-width="1"/>
+      <circle cx="6" cy="12" r="3.5" fill="none" stroke="#2F2925" stroke-width="1"/>
+      <circle cx="18" cy="6" r="6" fill="none" stroke="#2F2925" stroke-width="1"/>
+      <circle cx="18" cy="6" r="3.5" fill="none" stroke="#2F2925" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="200" height="200" fill="url(#seigaiha)"/>
+</svg>
+
+<div id="leaves-layer" aria-hidden="true"></div>
+
+<div class="page">
+
+  <header class="fade-seq seq-1">
+    <h1 class="brand">纸间密语</h1>
+    <p class="brand-sub">和纸之上，数字之间</p>
+  </header>
+
+  <section id="login-view" class="card fade-seq seq-2">
+    <h2 class="login-title">入 门</h2>
+    <form id="login-form" autocomplete="off" novalidate>
+      <div class="field">
+        <label class="field-label" for="login-user">名字</label>
+        <input class="input" id="login-user" type="text" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label class="field-label" for="login-pass">暗号</label>
+        <input class="input" id="login-pass" type="password" autocomplete="off">
+      </div>
+      <p class="error-msg" id="login-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-block">进去</button>
+    </form>
+  </section>
+
+  <section id="tool-view" class="card fade-seq seq-2 hidden">
+    <div class="mode-tabs" role="tablist">
+      <button class="mode-tab" role="tab">写密语</button>
+      <button class="mode-tab active" role="tab" aria-selected="true">拆密语</button>
+    </div>
+
+    <!-- 写密语 -->
+    <div class="mode-panel hidden" id="panel-write">
+      <div class="field">
+        <label class="field-label" for="seed-input">先给今天起个 4 位暗号</label>
+        <input class="input seed-input" id="seed-input" type="text" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label class="field-label" for="plain-input">写下你想说的话（支持英文大小写、数字和中英文常用标点）</label>
+        <textarea class="input" id="plain-input" rows="4" spellcheck="false" placeholder="Dear..."></textarea>
+        <div class="mini-actions">
+          <button class="mini-btn" data-action="select" data-target="plain-input">全选</button>
+          <button class="mini-btn" data-action="clear" data-target="plain-input">清除</button>
+          <button class="mini-btn" data-action="copy" data-target="plain-input">复制</button>
+        </div>
+      </div>
+      <p class="error-msg" id="write-error" role="alert"></p>
+      <button class="btn btn-primary btn-block" id="btn-encode">封成密文</button>
+      <div class="result-area" id="write-result">
+        <div class="result-box" id="cipher-output"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary" id="btn-copy-cipher">抄下密文</button>
+        </div>
+        <p class="error-msg" id="copy-cipher-error" role="alert"></p>
+      </div>
+    </div>
+
+    <!-- 拆密语 -->
+    <div class="mode-panel" id="panel-decode">
+      <div class="field">
+        <label class="field-label" for="cipher-input">把收到的完整密文贴在这里（前 4 位是今日暗号，后面每 4 位一组）</label>
+        <textarea class="input mono" id="cipher-input" rows="4" spellcheck="false" placeholder="0315 0722 1024"></textarea>
+        <div class="mini-actions">
+          <button class="mini-btn" data-action="select" data-target="cipher-input">全选</button>
+          <button class="mini-btn" data-action="clear" data-target="cipher-input">清除</button>
+          <button class="mini-btn" data-action="copy" data-target="cipher-input">复制</button>
+        </div>
+      </div>
+      <p class="error-msg" id="decode-error" role="alert"></p>
+      <button class="btn btn-primary btn-block" id="btn-decode">拆开密语</button>
+      <div class="result-area" id="decode-result">
+        <p class="seed-hint" id="seed-hint"></p>
+        <div class="result-box" id="plain-output"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary" id="btn-copy-plain">抄下原话</button>
+        </div>
+        <p class="error-msg" id="copy-plain-error" role="alert"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer-note fade-seq seq-2">
+    <div class="rule"></div>
+    <p>纸间密语不保存任何输入和结果，关掉页面就散了。</p>
+    <p>这是趣味混淆，不是真正加密，重要的事请直接说。</p>
+    <button class="logout-link hidden" id="btn-logout">合上这本手帖</button>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+ * 账号密码（Unicode 转义存储，防一眼看到，不是真正加密）
+ * \u6b63\u7199 = 正熙, \u9038\u98de = 逸飞
+ * ============================================================ */
+const ACCOUNTS = [
+  { username: "正熙", password: "20000310" },
+  { username: "逸飞", password: "19991104" }
+];
+
+/* ============================================================
+ * 字符集（93 个）：英文大小写、数字、空格、中英文常用标点、换行
+ * 每个字符编码为 2 位数字（00-92），mod 93
+ * 显示时合并为 4 位一组，最后一组可能只有 2 位
+ * ============================================================ */
+const CHARACTER_SET =
+  "abcdefghijklmnopqrstuvwxyz" +
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+  "0123456789" +
+  " ,.!?;:'\"()-" +
+  "\n" +
+  "，。！？；：、（）《》“”‘’—…～";
+const CHAR_COUNT = CHARACTER_SET.length;  // 93
+const CHAR_GROUP = 2;    // 每个字符 2 位
+const SEED_LENGTH = 4;
+const LOGIN_KEY = "shikami_session";
+
+/* ============================================================
+ * 确定性哈希（FNV-1a + djb2 组合）
+ * ============================================================ */
+function hashSeed(seed) {
+  let fnv = 0x811c9dc5;
+  let djb = 5381;
+  for (let i = 0; i < seed.length; i++) {
+    const ch = seed.charCodeAt(i);
+    fnv = Math.imul(fnv ^ ch, 0x01000193);
+    djb = (Math.imul(djb, 33) + ch) | 0;
+  }
+  return (fnv >>> 0).toString(16) + "-" + (djb >>> 0).toString(16);
+}
+
+/* ============================================================
+ * 确定性 PRNG（mulberry32）
+ * ============================================================ */
+function createPRNG(seedStr) {
+  let a = 0;
+  const h = hashSeed(seedStr);
+  for (let i = 0; i < h.length; i++) a = (Math.imul(a, 31) + h.charCodeAt(i)) | 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ============================================================
+ * 编码：每个字符 → 2 位数字，然后合并为 4 位一组显示
+ * 这是趣味混淆，不是真正加密。
+ * ============================================================ */
+function encodeText(seed, text) {
+  const rand = createPRNG("stream:" + seed);
+  const pairs = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = CHARACTER_SET.indexOf(text[i]);
+    if (c === -1) return { ok: false, reason: "charset" };
+    const offset = Math.floor(rand() * CHAR_COUNT);
+    const v = (c + offset) % CHAR_COUNT;
+    pairs.push(String(v).padStart(CHAR_GROUP, "0"));
+  }
+  // 合并为 4 位一组，最后一组可能是 2 位
+  const groups = [];
+  for (let i = 0; i < pairs.length; i += 2) {
+    groups.push(pairs[i] + (pairs[i + 1] || ""));
+  }
+  return { ok: true, cipher: groups.join(" ") };
+}
+
+/* ============================================================
+ * 解码：按 2 位一组解析（兼容 4 位显示格式）
+ * ============================================================ */
+function decodeText(seed, digits) {
+  const rand = createPRNG("stream:" + seed);
+  let out = "";
+  for (let i = 0; i < digits.length; i += CHAR_GROUP) {
+    const v = parseInt(digits.slice(i, i + CHAR_GROUP), 10);
+    if (isNaN(v) || v >= CHAR_COUNT) return { ok: false, reason: "badpair" };
+    const offset = Math.floor(rand() * CHAR_COUNT);
+    let c = v - offset;
+    c = ((c % CHAR_COUNT) + CHAR_COUNT) % CHAR_COUNT;
+    out += CHARACTER_SET[c];
+  }
+  return { ok: true, text: out };
+}
+
+/* ============================================================
+ * DOM 引用
+ * ============================================================ */
+const $ = (id) => document.getElementById(id);
+const loginView    = $("login-view"),   toolView     = $("tool-view");
+const loginForm    = $("login-form"),   loginError   = $("login-error");
+const panelWrite   = $("panel-write"),  panelDecode  = $("panel-decode");
+const seedInput    = $("seed-input"),   plainInput   = $("plain-input");
+const cipherInput  = $("cipher-input");
+const writeError   = $("write-error"),  decodeError  = $("decode-error");
+const writeResult  = $("write-result"), decodeResult = $("decode-result");
+const cipherOut    = $("cipher-output"), plainOut    = $("plain-output");
+const seedHint     = $("seed-hint");
+const btnLogout    = $("btn-logout");
+const tabs         = document.querySelectorAll(".mode-tab");
+
+/* ============================================================
+ * 登录状态（仅 sessionStorage）
+ * ============================================================ */
+function isLoggedIn() {
+  try { return sessionStorage.getItem(LOGIN_KEY) === "1"; } catch (e) { return false; }
+}
+function showApp() {
+  loginView.classList.add("hidden");
+  toolView.classList.remove("hidden");
+  btnLogout.classList.remove("hidden");
+  // 登录后直接展示，不等 1.9s 入场动画延迟
+  toolView.querySelectorAll(".fade-seq").forEach((el) => {
+    el.style.animation = "none";
+    el.style.opacity = "1";
+  });
+}
+function showLogin() {
+  toolView.classList.add("hidden");
+  loginView.classList.remove("hidden");
+  btnLogout.classList.add("hidden");
+}
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const u = $("login-user").value.trim();
+  const p = $("login-pass").value;
+  const matched = ACCOUNTS.some(acc => acc.username === u && acc.password === p);
+  if (matched) {
+    try { sessionStorage.setItem(LOGIN_KEY, "1"); } catch (err) {}
+    loginError.textContent = "";
+    showApp();
+  } else {
+    loginError.textContent = "暗号不对，再想想";
+  }
+});
+
+btnLogout.addEventListener("click", () => {
+  try { sessionStorage.removeItem(LOGIN_KEY); } catch (e) {}
+  showLogin();
+});
+
+/* ============================================================
+ * 模式切换
+ * ============================================================ */
+function clearAll() {
+  writeError.textContent = ""; decodeError.textContent = "";
+  $("copy-cipher-error").textContent = ""; $("copy-plain-error").textContent = "";
+  writeResult.classList.remove("visible"); decodeResult.classList.remove("visible");
+  cipherOut.textContent = ""; plainOut.textContent = ""; seedHint.textContent = "";
+}
+function switchMode(toWrite) {
+  const showEl = toWrite ? panelWrite : panelDecode;
+  const hideEl = toWrite ? panelDecode : panelWrite;
+  hideEl.classList.add("fading");
+  setTimeout(() => {
+    hideEl.classList.add("hidden");
+    hideEl.classList.remove("fading");
+    clearAll();
+    showEl.classList.remove("hidden");
+    showEl.classList.add("fading");
+    requestAnimationFrame(() => requestAnimationFrame(() => showEl.classList.remove("fading")));
+  }, 300);
+  tabs.forEach((t, i) => {
+    const active = (i === 0) === toWrite;
+    t.classList.toggle("active", active);
+    t.setAttribute("aria-selected", active ? "true" : "false");
+  });
+}
+tabs[0].addEventListener("click", () => switchMode(true));
+tabs[1].addEventListener("click", () => switchMode(false));
+
+/* ============================================================
+ * 复制功能（多方案降级，确保手机可用）
+ * ============================================================ */
+function copyText(text) {
+  return new Promise((resolve, reject) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(resolve).catch(() => fallbackCopy(text, resolve, reject));
+    } else {
+      fallbackCopy(text, resolve, reject);
+    }
+  });
+}
+
+function fallbackCopy(text, resolve, reject) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;opacity:0;pointer-events:none;";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  try {
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    ok ? resolve() : reject();
+  } catch (e) {
+    document.body.removeChild(ta);
+    reject();
+  }
+}
+
+/* ============================================================
+ * 小工具按钮：全选 / 清除 / 复制
+ * ============================================================ */
+document.querySelectorAll(".mini-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const action = btn.dataset.action;
+    const target = $(btn.dataset.target);
+    if (!target) return;
+
+    if (action === "select") {
+      target.focus();
+      target.select();
+      target.setSelectionRange(0, target.value.length);
+    } else if (action === "clear") {
+      target.value = "";
+      target.focus();
+    } else if (action === "copy") {
+      const text = target.value;
+      if (!text) return;
+      const original = btn.textContent;
+      copyText(text).then(() => {
+        btn.textContent = "已抄下";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {
+        btn.textContent = "失败，请手动";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+  });
+});
+
+/* ============================================================
+ * 写密语
+ * ============================================================ */
+seedInput.addEventListener("input", () => {
+  seedInput.value = seedInput.value.replace(/\D/g, "").slice(0, SEED_LENGTH);
+});
+
+$("btn-encode").addEventListener("click", () => {
+  writeError.textContent = "";
+  $("copy-cipher-error").textContent = "";
+  const seed = seedInput.value;
+  const text = plainInput.value;
+
+  if (!/^\d{4}$/.test(seed)) {
+    writeError.textContent = "先给今天起个 4 位暗号。";
+    return;
+  }
+  if (text.length === 0) {
+    writeError.textContent = "还没写话呢。";
+    return;
+  }
+  const res = encodeText(seed, text);
+  if (!res.ok && res.reason === "charset") {
+    writeError.textContent = "这里只收英文、数字和中英文常用标点，中文正文请直接发。";
+    return;
+  }
+  cipherOut.textContent = seed + " " + res.cipher;
+  writeResult.classList.add("visible");
+});
+
+/* ============================================================
+ * 拆密语
+ * ============================================================ */
+$("btn-decode").addEventListener("click", () => {
+  decodeError.textContent = "";
+  $("copy-plain-error").textContent = "";
+  const raw = cipherInput.value.replace(/[\s]/g, "");
+
+  if (raw.length < SEED_LENGTH) {
+    decodeError.textContent = "密文太短，前 4 位应该是今日暗号。";
+    return;
+  }
+  const seed = raw.slice(0, SEED_LENGTH);
+  if (!/^\d{4}$/.test(seed)) {
+    decodeError.textContent = "前 4 位得是数字暗号。";
+    return;
+  }
+  const digits = raw.slice(SEED_LENGTH);
+  if (digits.length === 0 || digits.length % CHAR_GROUP !== 0) {
+    decodeError.textContent = "密文好像少了几位。";
+    return;
+  }
+  // 校验密文只含数字，防止字母等混入产生误导性报错
+  if (!/^\d+$/.test(digits)) {
+    decodeError.textContent = "密文里好像混进了别的字符。";
+    return;
+  }
+  const res = decodeText(seed, digits);
+  if (!res.ok) {
+    decodeError.textContent = "拆不开，检查一下今日暗号和密文是不是一对。";
+    return;
+  }
+  for (const ch of res.text) {
+    if (CHARACTER_SET.indexOf(ch) === -1) {
+      decodeError.textContent = "拆出来的内容不在字符集里，可能暗号或密文不对。";
+      return;
+    }
+  }
+  seedHint.textContent = "已识别今日暗号：" + seed;
+  plainOut.textContent = res.text;
+  decodeResult.classList.add("visible");
+});
+
+/* ============================================================
+ * 结果区复制按钮
+ * ============================================================ */
+function setupCopy(btnId, errId, getText) {
+  const btn = $(btnId), err = $(errId);
+  const original = btn.textContent;
+  btn.addEventListener("click", () => {
+    err.textContent = "";
+    const text = getText();
+    if (!text) return;
+    copyText(text).then(() => {
+      btn.textContent = "已抄下";
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    }).catch(() => {
+      err.textContent = "复制失败，请手动选中复制";
+    });
+  });
+}
+setupCopy("btn-copy-cipher", "copy-cipher-error", () => cipherOut.textContent);
+setupCopy("btn-copy-plain",  "copy-plain-error",  () => plainOut.textContent);
+
+/* ============================================================
+ * 落叶
+ * ============================================================ */
+(function makeLeaves() {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return;
+  const layer = $("leaves-layer");
+  const colors = ["#C4A961", "#B98A45", "#D9BE8C", "#E8C4C4", "#EED7D7"];
+  const count = 14;
+  for (let i = 0; i < count; i++) {
+    const leaf = document.createElement("div");
+    leaf.className = "leaf";
+    const size  = 6 + Math.floor(Math.random() * 6);
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const left  = Math.random() * 100;
+    const dur   = 12 + Math.random() * 13;
+    const delay = -Math.random() * dur;
+    const drift = (Math.random() * 160 - 80).toFixed(0);
+    const spin  = (Math.random() * 720 - 360).toFixed(0);
+    leaf.style.cssText =
+      "left:" + left + "%;" +
+      "width:" + size + "px;height:" + size + "px;" +
+      "background:" + color + ";" +
+      "border-radius:60% 40% 55% 45%;" +
+      "animation-duration:" + dur + "s;" +
+      "animation-delay:" + delay + "s;" +
+      "--drift:" + drift + "px;--spin:" + spin + "deg;";
+    layer.appendChild(leaf);
+  }
+})();
+
+/* ============================================================
+ * 初始化
+ * ============================================================ */
+if (isLoggedIn()) { showApp(); } else { showLogin(); }
+</script>
+
+</body>
+</html>
